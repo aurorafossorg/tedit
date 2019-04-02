@@ -1,0 +1,12 @@
+{
+	"name": "tedit",
+	"sourcePaths": ["source"],
+	"importPaths": [
+		"source"
+	],
+	"targetPath": ".out",
+	"dependencies": {
+		"aurorafw:core": "*",
+		"aurorafw:cli": "*"
+	}
+}
