@@ -13,52 +13,60 @@ class Renderer {
 	{
 		this.app = app;
 
-		this.term = Terminal(Terminal.OutputType.CELL);
+		this.terminal = Terminal(Terminal.OutputType.CELL);
+		terminal.setTitle("Tedit Text Editor");
 
 		//initial draw
-		term.getWindowSize(rows, cols);
+		terminal.getWindowSize(rows, cols);
 		windowResizeCallback();
 
-		flush();
-	}
-
-	public void flush()
-	{
-		if(buffer.length>0)
-		{
-			term.write(buffer.toStringz, buffer.length);
-			buffer.length = 0;
-		}
+		terminal.flushBuffer();
 	}
 
 	public void render()
 	{
-		dchar c = term.readCh();
+		dchar c = terminal.readCh();
 		switch (c) {
 			case CTRL_KEY('q'):
 				this._shouldRender = false;
-				break;/*
-			case "\x1b[A":
-				win_cy--;
 				break;
-			case "\x1b[B":
-				win_cy++;
+			case '\x1b':
+				c = terminal.readCh();
+				if(c == '[')
+				{
+					c = terminal.readCh();
+					final switch(c)
+					{
+						case 'A':
+							if(cy != 0)
+								cy--;
+							break;
+						case 'B':
+							if(cx != rows - 1)
+							cy++;
+							break;
+						case 'C':
+							if(cx != cols - 1)
+								cx++;
+							break;
+						case 'D':
+							if(cx != 0)
+								cx--;
+							break;
+					}
+				}
 				break;
-			case "\x1b[C":
-				win_cx++;
-				break;
-			case "\x1b[D":
-				win_cx--;
-				break;*/
+			case 0: break;
 			default:
 				import std.conv : to;
-				write(to!string(c));
+				terminal.writeBuffer(to!string(c));
+				cx++;
 				break;
 		}
 
 		// new window size
 		size_t new_rows, new_cols;
-		term.getWindowSize(new_rows, new_cols);
+		terminal.getWindowSize(new_rows, new_cols);
 
 		// check if window size changed
 		if(new_cols != cols || new_rows != rows)
@@ -74,32 +82,29 @@ class Renderer {
 		cols = new_cols;
 		rows = new_rows;
 
-		term.viewCursor(true); // show cursor
+		terminal.setCursorPos(cx, cy);
+		terminal.viewCursor(true); // show cursor
 
 		// if should render, flush buffer
 		if(this._shouldRender)
-			flush();
+			terminal.flushBuffer();
 	}
 
 	public void windowResizeCallback()
 	{
-		term.clear();
+		terminal.clear();
 
 		for (size_t y = 0; y < rows; y++)
 		{
-			write("~");
-			write("\x1b[K");
+			terminal.writeBuffer("~");
+			terminal.writeBuffer("\x1b[K");
 			if (y < rows - 1) {
-				write("\r\n");
+				terminal.writeBuffer("\r\n");
     }
 		}
-		flush();
-		term.setCursorPos(0, 0);
-	}
+		terminal.setCursorPos(0, 0);
 
-	public void write(string str)
-	{
-		buffer ~= str;
+		terminal.flushBuffer();
 	}
 
 	@property public bool shouldRender()
@@ -112,14 +117,9 @@ class Renderer {
 		return this.resized;
 	}
 
-	@property public ref Terminal terminal()
-	{
-		return this.term;
-	}
+	public Terminal terminal;
 
 	private TeditApplication app;
-	private Terminal term;
-	private string buffer;
 	private size_t cx, cy;
 	private size_t rows, cols;
 	private bool _shouldRender = true;
