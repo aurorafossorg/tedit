@@ -8,14 +8,14 @@ import std.json;
 import std.file : exists, write, read, mkdirRecurse;
 import std.path : absolutePath, pathSeparator;
 import std.conv : to;
+import std.process;
 
 class Settings {
-	// FIXME: path is not at home dir
 	this(TeditApplication app)
 	{
 		this.editor = editor;
 		this.app = app;
-		this.path = absolutePath("~/.config/tedit/");
+		this.path = environment.get("HOME") ~ "/.config/tedit/";
 
 		app.logger.trace("Check for user configurations");
 		if(!exists(this.path))
