@@ -1,0 +1,50 @@
+@startuml
+
+class TextDocument {
+	boolean isUntitled
+	bollean isDirty
+	size_t lineCount
+}
+
+class TextLine {
+	size_t lineNumber
+	string text
+}
+
+class Position {
+	this(size_t line, size_t character)
+	size_t line
+	size_t character
+}
+
+class Range {
+	this(Position start, Position end)
+	this(size_t startLine, size_t startCharacter, size_t endLine, size_t endCharacter)
+	readonly Position start
+	readonly Position end
+	boolean isEmpty
+	boolean isSingleLine
+	contains(Position pos)
+	contains(Range range)
+	isEqual(Range range)
+	intersection(Range range)
+	union(Range range)
+}
+
+class Selection {
+	
+}
+
+interface Command {
+	string title
+	string description
+	string command
+}
+
+interface ExtensionContext {
+	string logPath
+}
+
+Selection <|-- Range
+
+@enduml

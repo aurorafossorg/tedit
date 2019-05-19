@@ -1,0 +1,4 @@
+# Documentation artifacts
+dist/
+
+*.png
