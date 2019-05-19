@@ -5,3 +5,16 @@ dub.selections.json
 .dub
 
 .out
+
+# Profiling
+trace.def
+trace.log
+
+# GC Profiling
+profilegc.log
+
+# stderror file
+err.log
+
+# Visual Studio Code
+.vscode/ipch/
